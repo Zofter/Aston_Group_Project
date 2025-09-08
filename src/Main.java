@@ -23,6 +23,7 @@ public class Main {
 
 
         // Привет, это Вадим, отпишитесь ниже - кто получил ссылку-приглашение.
+        // Привет, это Alexandro
     }
 
     public static CustomCollection<Person> fillCustomCollection(String arg, int collectionSize) {
