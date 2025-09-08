@@ -42,4 +42,9 @@ public class Person {
     public void setPassNum(int passNum) {
         this.passNum = passNum;
     }
+
+    @Override
+    public String toString() {
+        return "{Имя: " + name + " Вес: " + weight + " Возраст: " + age + " Номер паспорта: " + passNum + "}\n";
+    }
 }
