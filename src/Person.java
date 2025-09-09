@@ -1,51 +1,44 @@
 public class Person {
-    private int age;
-    private double weight;
-    private String name;
-    private int passNum;
+    private final String name;
+    private final int age;
+    private final double weight;
+    private final int passNum;
 
-    public Person(int age, double weight, String name, int passNum) {
-        this.age=age;
-        this.weight = weight;
-        this.name = name;
-        this.passNum = passNum;
+    public Person(Builder builder) {
+        this.name = builder.name;
+        this.age = builder.age;
+        this.weight = builder.weight;
+        this.passNum = builder.passNum;
     }
 
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setWeight(double weight) {
-        this.weight = weight;
-    }
-
-    public double getWeight() {
-        return weight;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getPassNum() {
-        return passNum;
-    }
-
-    public void setPassNum(int passNum) {
-        this.passNum = passNum;
+    public static class Builder {
+        private final String name;
+        private int age = 0;
+        private double weight = 0.0;
+        private int passNum = 0;
+        public Builder(String name) {
+            this.name = name;
+        }
+        public Builder age(int age) {
+            this.age = age;
+            return this;
+        }
+        public Builder weight(double weight) {
+            this.weight = weight;
+            return this;
+        }
+        public Builder passNum(int passNum) {
+            this.passNum = passNum;
+            return this;
+        }
+        public Person Build() {
+            return new Person(this);
+        }
     }
 
     @Override
     public String toString() {
-        return "{Имя: " + name + " Вес: " + weight + " Возраст: " + age + " Номер паспорта: " + passNum + "}\n";
+        return "Person {Имя: " + name + " Вес: " + weight + " Возраст: " + age + " Номер паспорта: " + passNum + "}\n";
     }
 }
 
