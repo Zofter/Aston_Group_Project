@@ -1,53 +1,44 @@
+import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-
-
         boolean workInMainCycle = true;
         int collectionSize = 0;
+        List<Person> personCollection = List.of();
+        Scanner in = new Scanner(System.in);
 
-        Person person = PersonPull.createPerson(new ManualStrategy());
-        System.out.println(person);
+        while (workInMainCycle) {
+            System.out.println("Укажите длину новой кастомной коллекции");
+            collectionSize = Integer.parseInt(in.next());
 
-//        Scanner in = new Scanner(System.in);
-//        while (workInMainCycle) {
-//            System.out.println("Укажите длину кастомной коллекции");
-//            collectionSize = Integer.parseInt(in.next());
-//
-//            System.out.println("Для выбора заполнения коллекции случайными параметрами, введите \"random\"");
-//            System.out.println("Для выбора заполнения коллекции собственными значениями, введите \"self\"");
-//            System.out.println("Для выбора заполнения коллекции значениями из файла, введите \"file\"");
-//            System.out.println("Для выхода из программы введите команду \"exit\"");
-//            //String typeFillingCollection = in.next();
-//            if (in.next().equals("exit")) {
-//                in.close();
-//                workInMainCycle = false;
-//            }
-//            //List<Person> personCollection = fillCustomCollection(typeFillingCollection, collectionSize);
-//        }
-//        System.out.println("Выход из главного цикла");
+            System.out.println("Для выбора заполнения коллекции случайными параметрами, введите \"random\"");
+            System.out.println("Для выбора заполнения коллекции собственными значениями, введите \"self\"");
+            System.out.println("Для выбора заполнения коллекции значениями из файла, введите \"file\"");
+            System.out.println("Для выхода из программы введите команду \"exit\"");
+            String typeFillingCollection = in.next();
 
+            if (typeFillingCollection.equals("random")) personCollection = fillingCollection(new RandomStrategy(), collectionSize);
+            if (typeFillingCollection.equals("self")) personCollection = fillingCollection(new ManualStrategy(), collectionSize);
 
-
-    }
-    public static CustomCollection<Person> fillCustomCollection(String arg, int collectionSize) {
-        if (arg.equals("random")) {
-//            for (int i = 0; i < collectionSize; i++) {
-//                personCollection.add(new Person(randInt(), randDouble(), randName(), randInt()));
-//            }
+            System.out.println(personCollection);
+            
+            if (typeFillingCollection.equals("exit")) {
+                in.close();
+                workInMainCycle = false;
+            }
         }
-        if (arg.equals("self")) {
-
-        }
-        if (arg.equals("file")) {
-
-        }
-        return null;
+        System.out.println("Выход из главного цикла");
     }
 
-
+    static List<Person> fillingCollection(PersonStrategy personStrategy, int size) {
+        List<Person> tempCollection = new CustomCollection<>(size);
+        for (int i = 0; i < size; i++) {
+            tempCollection.add(PersonPull.createPerson(personStrategy));
+        }
+        return tempCollection;
+    }
 }
 
 final class PersonPull {
@@ -77,13 +68,13 @@ class ManualStrategy implements PersonStrategy {
     public void getPerson(Person.Builder b) {
         Scanner in = new Scanner(System.in);
 
-        System.out.println("Укажите Имя");
+        System.out.println("Укажите имя создаваемого человека");
         String name = in.next();
 
-        System.out.println("Укажите возраст");
+        System.out.println("Укажите возраст создаваемого человека");
         int age = Integer.parseInt(in.next());
 
-        System.out.println("Укажите вес");
+        System.out.println("Укажите вес создаваемого человека");
         double weight = Double.parseDouble(in.next());
 
         b.name(name).age(age).weight(weight);
