@@ -36,4 +36,3 @@ public class Person {
         return "Person {Имя: " + name + "; Вес: " + weight + "; Возраст: " + age + "}\n";
     }
 }
-
