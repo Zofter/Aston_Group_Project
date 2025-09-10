@@ -1,7 +1,9 @@
 package main;
 
 import java.util.*;
+import comparator.*;
 import model.Person;
+import service.CollectionSorter;
 import strategy.*;
 import service.CollectionFiller;
 
@@ -32,6 +34,9 @@ public class Main {
                 default -> List.of();
             };
 
+            CollectionSorter.sort(personCollection, new PersonAgeComparator().thenComparing(new PersonNameComparator()).thenComparing(new PersonWeightComparator()));
+
+            System.out.println("Содержимое заполненной коллекции");
             personCollection.forEach(System.out::print);
             System.out.println();
         }

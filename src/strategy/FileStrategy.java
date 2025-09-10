@@ -50,15 +50,15 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
                 String name = jr.nextName();
                 switch (name) {
                     case "name" -> {
-                        if (jr.peek() == JsonToken.NULL) { jr.nextNull(); }
+                        if (jr.peek() == JsonToken.NULL) jr.nextNull();
                         else b.name(jr.nextString());
                     }
                     case "age" -> {
-                        if (jr.peek() == JsonToken.NULL) { jr.nextNull(); }
+                        if (jr.peek() == JsonToken.NULL) jr.nextNull();
                         else b.age(jr.nextInt());
                     }
                     case "weight" -> {
-                        if (jr.peek() == JsonToken.NULL) { jr.nextNull(); }
+                        if (jr.peek() == JsonToken.NULL) jr.nextNull();
                         else b.weight(jr.nextDouble());
                     }
                     default -> jr.skipValue(); // Игнорирование лишних полей, если они есть.

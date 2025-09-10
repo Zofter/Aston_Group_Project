@@ -11,6 +11,18 @@ public class Person {
         this.weight = builder.weight;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
     public static class Builder {
         private String name;
         private int age = 0;
