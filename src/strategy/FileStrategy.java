@@ -4,9 +4,7 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import model.Person;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -32,7 +30,7 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
         try {
 
             if (!arrayStarted) {
-                // ожидается формат: [ { ... }, { ... }, ... ]
+                // Ожидается формат массива типа: [ { ... }, { ... }, ... ]
                 if (jr.peek() == JsonToken.BEGIN_ARRAY) {
                     jr.beginArray();
                     arrayStarted = true;
@@ -63,7 +61,7 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
                         if (jr.peek() == JsonToken.NULL) { jr.nextNull(); }
                         else b.weight(jr.nextDouble());
                     }
-                    default -> jr.skipValue(); // игнорируем лишние поля
+                    default -> jr.skipValue(); // Игнорирование лишних полей, если они есть.
                 }
             }
             jr.endObject();

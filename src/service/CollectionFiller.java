@@ -18,7 +18,7 @@ public class CollectionFiller {
                     break;
                 }
             }
-        } finally {
+        } finally { // Закрываем поток json-ридера только в стратегии с AutoCloseable
             if (personStrategy instanceof AutoCloseable ac) {
                 try { ac.close(); } catch (Exception ignore) {}
             }
