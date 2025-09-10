@@ -1,3 +1,5 @@
+package model;
+
 public class Person {
     private final String name;
     private final int age;
@@ -33,6 +35,6 @@ public class Person {
 
     @Override
     public String toString() {
-        return "Person {Имя: " + name + "; Вес: " + weight + "; Возраст: " + age + "}\n";
+        return "model.Person {Имя: " + name + "; Вес: " + weight + "; Возраст: " + age + "}\n";
     }
 }
