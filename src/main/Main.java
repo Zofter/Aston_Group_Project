@@ -34,14 +34,12 @@ public class Main {
                 default -> List.of();
             };
 
-            CollectionSorter.sort(personCollection, new PersonAgeComparator().thenComparing(new PersonNameComparator()).thenComparing(new PersonWeightComparator()));
+            CollectionSorter.sort(personCollection, new PersonAgeComparator().reversed()); //.thenComparing(new PersonNameComparator()).thenComparing(new PersonWeightComparator()));
 
             System.out.println("Содержимое заполненной коллекции");
             personCollection.forEach(System.out::print);
             System.out.println();
         }
         System.out.println("Выход из главного цикла");
-
-        // test Vadim branch
     }
 }

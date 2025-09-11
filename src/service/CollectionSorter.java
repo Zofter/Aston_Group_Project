@@ -18,25 +18,20 @@ public class CollectionSorter {
     }
 
     private static <T> int partition(List<T> list, int low, int high, Comparator<T> comp) {
-        T pivot = list.get(low);
-        int left = low + 1;
+        T pivot = list.get(low); // опорный = первый элемент
+        int left = low + 1;      //
         int right = high;
 
-        while (true) {
-            while (left <= right && comp.compare(list.get(left), pivot) <= 0) {
+        while (left <= right) {
+            while (left <= right && comp.compare(list.get(left), pivot) <= 0) left++;
+            while (left <= right && comp.compare(list.get(right), pivot) >= 0) right--;
+            if (left < right) {
+                swap(list, left, right);
                 left++;
-            }
-            while (right >= left && comp.compare(list.get(right), pivot) >= 0) {
                 right--;
             }
-            if (right < left) {
-                break;
-            } else {
-                swap(list, left, right);
-            }
         }
-
-        swap(list, low, right);
+        swap(list, low, right); // перенос опорного элемента на right указатель
         return right;
     }
 
