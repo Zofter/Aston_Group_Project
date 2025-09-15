@@ -28,25 +28,30 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
     public void getPerson(Person.Builder b) {
         if (finished) throw new NoSuchElementException("В файле больше нет объектов");
         try {
-
             if (!arrayStarted) {
                 // Ожидается формат массива типа: [ { ... }, { ... }, ... ]
-                if (jr.peek() == JsonToken.BEGIN_ARRAY) {
-                    jr.beginArray();
+                if (jr.peek() == JsonToken.BEGIN_ARRAY) {   // peek() - для определения типа следующего токена без его извлечения (без продвижения позиции чтения)
+                    jr.beginArray();                        // проверка текущего токена на начало массива и перенос в случае успеха парсера вперед
                     arrayStarted = true;
                 } else {
                     throw new IllegalStateException("Ожидался JSON-массив в корне файла");
                 }
             }
-
+            // hasNext() - не потребляя токен - проверяет наличие элементов - определяет, есть ли еще элементы
+            // для чтения в массиве или в объекте
             if (!jr.hasNext()) {
-                jr.endArray();
+                jr.endArray(); // Проверка того, что текущий токен является концом массива (]) и завершение чтения массива с выходом.
                 finished = true;
                 throw new NoSuchElementException("В файле больше нет объектов");
             }
 
+            // beginObject() Проверяет текущий токен - убеждается, что следующий токен в JSON-потоке является началом объекта ({)
+            // Перемещает парсер вперед - после успешной проверки переходит к чтению пар ключ-значение объекта
             jr.beginObject();
             while (jr.hasNext()) {
+                // nextName() - Читает ключ объекта - извлекает имя свойства из пары ключ-значение
+                // Перемещает парсер - после чтения ключа парсер готов к чтению значения
+                // Валидирует структуру - проверяет, что текущий контекст является объектом
                 String name = jr.nextName();
                 switch (name) {
                     case "name" -> {
