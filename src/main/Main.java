@@ -3,6 +3,7 @@ package main;
 import java.util.*;
 import comparator.*;
 import model.Person;
+import service.BinarySearch;
 import service.CollectionSorter;
 import strategy.*;
 import service.CollectionFiller;
@@ -35,6 +36,13 @@ public class Main {
             };
 
             CollectionSorter.sort(personCollection, new PersonNameComparator().reversed()); //.thenComparing(new PersonNameComparator()).thenComparing(new PersonWeightComparator()));
+
+            Person searchUser = new Person.Builder().name("Oleg").weight(45.0).age(10).build();
+
+            // Поиск строки!!!! сделать
+            System.out.println("Найденное значение: " + BinarySearch.search(personCollection, searchUser, new PersonNameComparator()));
+
+
 
             System.out.println("Содержимое заполненной коллекции");
             personCollection.forEach(System.out::print);
