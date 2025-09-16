@@ -34,7 +34,7 @@ public class Main {
                 default -> List.of();
             };
 
-            CollectionSorter.sort(personCollection, new PersonAgeComparator().reversed()); //.thenComparing(new PersonNameComparator()).thenComparing(new PersonWeightComparator()));
+            CollectionSorter.sort(personCollection, new PersonNameComparator().reversed()); //.thenComparing(new PersonNameComparator()).thenComparing(new PersonWeightComparator()));
 
             System.out.println("Содержимое заполненной коллекции");
             personCollection.forEach(System.out::print);
