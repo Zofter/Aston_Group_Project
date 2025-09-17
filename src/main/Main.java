@@ -117,8 +117,8 @@ public class Main {
 
         Person target = new Person.Builder()
                 .name(name)
-                .age(0) // возраст не важен для поиска по имени
-                .weight(0) // вес не важен
+                .age(0) 
+                .weight(0) 
                 .build();
 
         System.out.println("Сначала создайте коллекцию");
