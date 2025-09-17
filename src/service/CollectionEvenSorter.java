@@ -9,20 +9,18 @@ import java.util.function.ToIntFunction;
 
 public class CollectionEvenSorter {
 
-    public static <T> void sort(List<T> list, Comparator<T> comp) {
+    public static <T> void sort(List<T> list, Comparator<T> comp, ToIntFunction<T> key) {
         int n = list.size();
         int[] evenIndexArr = new int[n];
         int m = 0;
-        for (int i = 0; i < n;  i++)
-            if (i % 2 == 0) evenIndexArr[m++] = i;
+        for (int i = 0; i < n; i++) if (key.applyAsInt(list.get(i)) % 2 == 0) evenIndexArr[m++] = i;
         evenIndexArr = Arrays.copyOf(evenIndexArr, m);
         if (m <= 1) return; // Нет элементов для сортировки
 
-        try (ForkJoinPool forkJoinPool = new ForkJoinPool(3)) {
-            forkJoinPool.invoke(new QuickSortTask<>(list, evenIndexArr, 0, m - 1, comp));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
+
+        forkJoinPool.invoke(new QuickSortTask<>(list, evenIndexArr, 0, m - 1, comp));
+
     }
 
     private static class QuickSortTask<T> extends RecursiveAction {
@@ -83,96 +81,5 @@ public class CollectionEvenSorter {
         T temp = list.get(i);
         list.set(i, list.get(j));
         list.set(j, temp);
-    }
-}
-
-
-
-
-class CollectionEvenSorterУ {
-
-    public static <T> void sortByEvenField(List<T> list, ToIntFunction<? super T> key) {
-        int n = list.size();
-        int[] evenIndexArr = new int[n];
-        int m = 0;
-        for (int i = 0; i < n; i++) {
-            if ((key.applyAsInt(list.get(i)) & 1) == 0) { // чётное значение поля
-                evenIndexArr[m++] = i;
-            }
-        }
-        if (m <= 1) return;
-        evenIndexArr = Arrays.copyOf(evenIndexArr, m);
-
-        Comparator<? super T> comp = Comparator.comparingInt(key); // натуральный порядок по полю
-
-        // Лучше так: общая FJP, без try-with-resources
-        ForkJoinPool.commonPool().invoke(new QuickSortTask<>(list, evenIndexArr, 0, m - 1, comp));
-    }
-
-    private static class QuickSortTask<T> extends RecursiveAction {
-        private static final int THRESHOLD = 64;
-
-        private final List<T> list;
-        private final int[] evenIndexArr;
-        private final int low, high;
-        private final Comparator<? super T> comp;
-
-        QuickSortTask(List<T> list, int[] evenIndexArr, int low, int high, Comparator<? super T> comp) {
-            this.list = list;
-            this.evenIndexArr = evenIndexArr;
-            this.low = low;
-            this.high = high;
-            this.comp = comp;
-        }
-
-        @Override
-        protected void compute() {
-            if (low >= high) return;
-            if (high - low < THRESHOLD) {
-                // можно сделать маленькую последовательную быструю сортировку
-                quickSortSeq(list, evenIndexArr, low, high, comp);
-                return;
-            }
-            int p = partition(list, evenIndexArr, low, high, comp);
-            invokeAll(
-                    new QuickSortTask<>(list, evenIndexArr, low, p - 1, comp),
-                    new QuickSortTask<>(list, evenIndexArr, p + 1, high, comp)
-            );
-        }
-
-        private static <T> void quickSortSeq(List<T> list, int[] idx, int lo, int hi, Comparator<? super T> comp) {
-            if (lo >= hi) return;
-            int p = partition(list, idx, lo, hi, comp);
-            quickSortSeq(list, idx, lo, p - 1, comp);
-            quickSortSeq(list, idx, p + 1, hi, comp);
-        }
-    }
-
-    // Partition поверх массива индексов чётных по значению элементов.
-    private static <T> int partition(List<T> list, int[] evenIndexArr, int low, int high, Comparator<? super T> comp) {
-        int pivotPos = evenIndexArr[low];
-        T pivot = list.get(pivotPos);
-        int left = low + 1;
-        int right = high;
-
-        while (left <= right) {
-            // Ищем первый элемент > pivot
-            while (left <= right && comp.compare(list.get(evenIndexArr[left]), pivot) <= 0) left++;
-            // Ищем первый элемент < pivot
-            while (left <= right && comp.compare(list.get(evenIndexArr[right]), pivot) >= 0) right--;
-            if (left < right) {
-                swap(list, evenIndexArr[left], evenIndexArr[right]);
-                left++; right--;
-            }
-        }
-        swap(list, pivotPos, evenIndexArr[right]);
-        return right;
-    }
-
-    private static <T> void swap(List<T> list, int i, int j) {
-        if (i == j) return;
-        T t = list.get(i);
-        list.set(i, list.get(j));
-        list.set(j, t);
     }
 }

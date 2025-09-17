@@ -4,6 +4,7 @@ import java.util.*;
 import comparator.*;
 import model.Person;
 import service.BinarySearch;
+import service.CollectionEvenSorter;
 import service.CollectionSorter;
 import strategy.*;
 import service.CollectionFiller;
@@ -35,16 +36,17 @@ public class Main {
                 default -> List.of();
             };
 
-            CollectionSorter.sort(personCollection, new PersonNameComparator().reversed()); //.thenComparing(new PersonNameComparator()).thenComparing(new PersonWeightComparator()));
+            System.out.println("Содержимое заполненной коллекции до сортировки");
+            personCollection.forEach(System.out::print);
+            System.out.println();
 
-            Person searchUser = new Person.Builder().name("Oleg").weight(45.0).age(10).build();
+            CollectionEvenSorter.sort(personCollection, new PersonAgeComparator(), Person::getAge);
+            // CollectionSorter.sort(personCollection, new PersonNameComparator());
 
-            // Поиск строки!!!! сделать
-            System.out.println("Найденное значение: " + BinarySearch.search(personCollection, searchUser, new PersonNameComparator()));
+            //Person searchUser = new Person.Builder().name("Oleg").weight(45.0).age(10).build();
+            //System.out.println("Найденное значение: " + BinarySearch.search(personCollection, searchUser, new PersonNameComparator()));
 
-
-
-            System.out.println("Содержимое заполненной коллекции");
+            System.out.println("Содержимое заполненной коллекции после сортировки");
             personCollection.forEach(System.out::print);
             System.out.println();
         }
