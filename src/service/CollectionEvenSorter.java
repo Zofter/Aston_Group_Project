@@ -29,7 +29,7 @@ public class CollectionEvenSorter {
         private final int low;
         private final int high;
         private final Comparator<T> comp;
-        private int[] evenIndexArr;
+        private final int[] evenIndexArr;
 
         QuickSortTask(List<T> list, int[] evenIndexArr, int low, int high, Comparator<T> comp) {
             this.list = list;
