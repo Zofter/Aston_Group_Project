@@ -1,0 +1,27 @@
+[
+  {
+    "name": "User67",
+    "age": 19,
+    "weight": 68.0
+  },
+  {
+    "name": "User54",
+    "age": 26,
+    "weight": 64.0
+  },
+  {
+    "name": "User43",
+    "age": 30,
+    "weight": 62.0
+  },
+  {
+    "name": "User1",
+    "age": 34,
+    "weight": 97.0
+  },
+  {
+    "name": "User62",
+    "age": 50,
+    "weight": 89.0
+  }
+]
