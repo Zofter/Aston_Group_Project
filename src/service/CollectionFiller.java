@@ -8,8 +8,8 @@ import strategy.PersonStrategy;
 import java.util.*;
 
 public class CollectionFiller {
-    public static List<Person> fill(PersonStrategy personStrategy, int size) {
-        List<Person> tempCollection = new CustomCollection<>(size);
+    public static CustomCollection<Person> fill(PersonStrategy personStrategy, int size) {
+        CustomCollection<Person> tempCollection = new CustomCollection<>(size);
         try {
             for (int i = 0; i < size; i++) {
                 try {

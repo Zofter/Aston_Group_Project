@@ -1,0 +1,39 @@
+Рабочая команда на подтяжку одного файла
+git checkout origin/Alexandro -- src/main/Main.java
+
+в git IntelliJ IDEA: right mouse button on file from branch: "Get from revision"/"Cherry-pick selected changes"
+
+______________________________________
+
+/src:
+---/collection
+-------CustomCollection.java - PospelovVN (feature/collection-and-tests)
+---/comparator
+-------PersonAgeComparator.java - Zofter (Vadim)
+-------PersonNameComparator.java - Zofter (Vadim)
+-------PersonWeightComparator.java - Zofter (Vadim)
+---/factory
+-------PersonPull.java - Zofter (Vadim)
+---/io
+-------FileWriterJSON_Util - Zofter (Vadim)
+---/main
+-------Main.java - Alexandro1101 (origin/Alexandro)
+---/model
+-------Person.java - Alexandro1101 (origin/Alexandro)
+---/service
+-------BinarySearch.java - PospelovVN (feature/binarysearch-io)
+-------CollectionEvenSorter.java - Zofter (Vadim)
+-------CollectionFiller.java - Zofter (Vadim)
+-------CollectionSorter.java - Zofter (Vadim)
+-------CountOccurrMultiThreaded.java - Alexandro1101 (origin/Alexandro)
+---/strategy
+-------FileStrategy.java - Zofter (Vadim)
+-------ManualStrategy.java - Zofter (Vadim)
+-------RandomStrategy.java - Zofter (Vadim)
+---/tests
+-------BinarySearchTest.java - PospelovVN (feature/collection-and-tests)
+-------CollectionFillerTest.java - PospelovVN (feature/collection-and-tests)
+-------CollectionSorterTest.java - PospelovVN (feature/collection-and-tests)
+-------CustomCollectionTest.java - PospelovVN (feature/collection-and-tests)
+
+Тесты + CountOccurrMultiThreaded

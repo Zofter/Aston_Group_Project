@@ -18,7 +18,6 @@ public class CollectionEvenSorter {
         if (m <= 1) return; // Нет элементов для сортировки
 
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
-
         forkJoinPool.invoke(new QuickSortTask<>(list, evenIndexArr, 0, m - 1, comp));
 
     }
