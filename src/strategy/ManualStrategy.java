@@ -10,10 +10,30 @@ public class ManualStrategy implements PersonStrategy {
         Scanner in = new Scanner(System.in);
         System.out.println("Укажите имя создаваемого человека");
         String name = in.next();
-        System.out.println("Укажите возраст создаваемого человека");
-        int age = Integer.parseInt(in.next());
-        System.out.println("Укажите вес создаваемого человека");
-        double weight = Double.parseDouble(in.next());
+
+        int age = 0;
+        while (true) {
+            System.out.println("Укажите возраст создаваемого человека");
+            String input = in.next();
+            try {
+                age = Integer.parseInt(input);
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Возраст должен быть целым числом, попробуйте ещё раз.");
+            }
+        }
+
+        double weight = 0;
+        while (true) {
+            System.out.println("Укажите вес создаваемого человека");
+            String input = in.next();
+            try {
+                weight = Double.parseDouble(input);
+                break;
+            } catch (NumberFormatException e) {
+                System.out.println("Вес должен быть числом (например, 72.5), попробуйте ещё раз.");
+            }
+        }
         b.name(name).age(age).weight(weight);
     }
 }

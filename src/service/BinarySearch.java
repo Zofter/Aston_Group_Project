@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.OptionalInt;
 
 public class BinarySearch {
-
     public static <T> OptionalInt search(List<T> list, T key, Comparator<? super T> comparator) {
         int left = 0;
         int right = list.size() - 1;

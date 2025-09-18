@@ -8,8 +8,7 @@ import java.util.concurrent.RecursiveAction;
 public class CollectionSorter {
 
     public static <T> void sort(List<T> list, Comparator<T> comp) {
-        try (ForkJoinPool forkJoinPool = new ForkJoinPool(3))
-        {
+        try (ForkJoinPool forkJoinPool = new ForkJoinPool(3)) {
             forkJoinPool.invoke(new QuickSortTask<>(list, 0, list.size() - 1, comp));
         } catch (Exception e) {
             e.printStackTrace();
