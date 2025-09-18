@@ -145,12 +145,23 @@ public class Main {
     }
 
     private static void countOccurrences(Scanner in) {
-        //System.out.println("Введите имя для подсчета: ");
-        //String name = in.nextLine();
+        System.out.println("Введите данные объекта для подсчета количества вхождений его в коллекцию: ");
+        System.out.print("Имя: ");
+        String name = in.nextLine();
+        System.out.print("Возраст: ");
+        int age = in.nextInt();
+        System.out.print("Вес: ");
+        double weight = in.nextDouble();
+        in.nextLine();
 
-        Person target = new Person.Builder().name("User4").age(41).weight(72).build();
+        Person targetPerson = new Person.Builder()
+                .name(name)
+                .age(age)
+                .weight(weight)
+                .build();
 
-        System.out.println("Количество вхождений искомого элемента: " + countOccurrencesMultiThreaded(personCollection, target, 3));
+        int occurrCount = countOccurrencesMultiThreaded(personCollection, targetPerson, 3);
+        System.out.println("Количество вхождений искомого элемента: " + occurrCount + "\n");
 
     }
 }

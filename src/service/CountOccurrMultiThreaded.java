@@ -39,7 +39,7 @@ public class CountOccurrMultiThreaded {
                         count++;
                     }
                 }
-                return count;
+                return count; // упаковывается в Future<Integer>
             });
         }
 

@@ -14,9 +14,7 @@ import java.util.Collection;
 public class FileWriterJSON_Util {
 
     public static void writePersons(Path file, Collection<Person> persons) throws IOException {
-        Gson gson = new GsonBuilder()
-                .setPrettyPrinting()
-                .create();
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             gson.toJson(persons, writer);
