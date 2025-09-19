@@ -137,7 +137,7 @@ public class Main {
         };
 
         OptionalInt idx = BinarySearch.search(personCollection, searchPerson, new PersonAgeComparator());
-        if(!idx.isEmpty()) {
+        if(idx.isPresent()) {
             System.out.println("Порядковый индекс искомого элемента: " + idx.getAsInt());
         } else {
             System.out.println("Искомый элемент не найден");
