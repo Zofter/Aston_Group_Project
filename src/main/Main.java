@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import comparator.*;
 import io.FileWriterJSON_Util;
+import io.FileWriterResults_Util;
 import model.Person;
 import service.BinarySearch;
 import service.CollectionEvenSorter;
@@ -26,7 +27,7 @@ public class Main {
 
         while (workInMainCycle) {
             System.out.println("=== Меню ===");
-            System.out.println("1. Создать и отсортировать коллекцию");
+            System.out.println("1. Создать/заполнить и отсортировать коллекцию");
             System.out.println("2. Бинарный поиск");
             System.out.println("3. Подсчет вхождений (многопоточный)");
             System.out.println("4. Выход");
@@ -70,6 +71,11 @@ public class Main {
             case "random" -> CollectionFiller.fill(new RandomStrategy(), collectionSize);
             case "self" -> CollectionFiller.fill(new ManualStrategy(), collectionSize);
             case "file" -> CollectionFiller.fill(new FileStrategy(), collectionSize);
+
+            // Дополнительное задание 3 - Заполнение коллекций через Stream's
+            // case "random" -> CollectionFiller.fillRndPrsnCollFromStream(collectionSize);
+            // case "file" -> CollectionFiller.fillFilePrsnCollFromStream(collectionSize);
+
             default -> {
                 System.out.println("Неверный выбор, используется random");
                 yield CollectionFiller.fill(new RandomStrategy(), collectionSize);
@@ -97,7 +103,7 @@ public class Main {
                 System.out.println("Команда не распознана, выбрана сортировка по возрасту");
                 CollectionSorter.sort(personCollection, new PersonAgeComparator());
             }
-        };
+        }
 
         System.out.println("Вывод отсортированной коллекции:");
         personCollection.forEach(System.out::print);
@@ -105,8 +111,8 @@ public class Main {
         System.out.println("Записать результат в файл? (y/n): ");
         try {
             if (in.nextLine().equalsIgnoreCase("y")) {
-                FileWriterJSON_Util.writePersons(Paths.get("Output.txt"), personCollection);
-                System.out.println("Результат записан в output.txt");
+                FileWriterJSON_Util.writePersons(Paths.get("JSON.txt"), personCollection);
+                System.out.println("Результат записан в JSON.txt");
             }
         } catch (IOException e) {
             System.out.println("Ошибка записи в файл: " + e.getMessage());
@@ -114,6 +120,7 @@ public class Main {
     }
 
     private static void binarySearch(Scanner in) {
+        String message;
         System.out.println("Введите данные для поиска:");
         System.out.print("Имя: ");
         String name = in.nextLine();
@@ -133,18 +140,35 @@ public class Main {
             case "name" -> new PersonNameComparator();
             case "age" -> new PersonAgeComparator();
             case "weight" -> new PersonWeightComparator();
-            default -> throw new IllegalStateException("Неизвестное значение имени параметра Person: " + sortField);
+            default -> {
+                System.out.println("Неизвестное значение имени параметра Person: " + sortField);
+                System.out.println("Выбрана сортировка по возрасту");
+                yield new PersonAgeComparator();
+            }
         };
 
-        OptionalInt idx = BinarySearch.search(personCollection, searchPerson, new PersonAgeComparator());
-        if(!idx.isEmpty()) {
-            System.out.println("Порядковый индекс искомого элемента: " + idx.getAsInt());
+        OptionalInt idx = BinarySearch.search(personCollection, searchPerson, byField);
+        if (idx.isPresent()) {
+            message = "Порядковый индекс искомого элемента: " + idx.getAsInt();
+            System.out.println(message);
         } else {
-            System.out.println("Искомый элемент не найден");
+            message = "Искомый элемент не найден";
+            System.out.println(message);
+        }
+
+        System.out.println("Записать результат в файл? (y/n): ");
+        try {
+            if (in.nextLine().equalsIgnoreCase("y")) {
+                FileWriterResults_Util.writeResults(Paths.get("Results.txt"), personCollection, searchPerson, message);
+                System.out.println("Результат записан в Results.txt");
+            }
+        } catch (IOException e) {
+            System.out.println("Ошибка записи в файл: " + e.getMessage());
         }
     }
 
     private static void countOccurrences(Scanner in) {
+        String message;
         System.out.println("Введите данные объекта для подсчета количества вхождений его в коллекцию: ");
         System.out.print("Имя: ");
         String name = in.nextLine();
@@ -160,8 +184,18 @@ public class Main {
                 .weight(weight)
                 .build();
 
-        int occurrCount = countOccurrencesMultiThreaded(personCollection, targetPerson, 3);
-        System.out.println("Количество вхождений искомого элемента: " + occurrCount + "\n");
+        int occurCount = countOccurrencesMultiThreaded(personCollection, targetPerson, 3);
+        message = "Количество вхождений искомого элемента: " + occurCount;
+        System.out.println(message);
 
+        System.out.println("Записать результат в файл? (y/n): ");
+        try {
+            if (in.nextLine().equalsIgnoreCase("y")) {
+                FileWriterResults_Util.writeResults(Paths.get("Results.txt"), personCollection, targetPerson, message);
+                System.out.println("Результат записан в Results.txt");
+            }
+        } catch (IOException e) {
+            System.out.println("Ошибка записи в файл: " + e.getMessage());
+        }
     }
 }

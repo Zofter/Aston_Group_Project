@@ -3,8 +3,11 @@ package service;
 import collection.CustomCollection;
 import factory.PersonPull;
 import model.Person;
+import strategy.FileStrategy;
 import strategy.PersonStrategy;
+import strategy.RandomStrategy;
 
+import java.io.IOException;
 import java.util.*;
 
 public class CollectionFiller {
@@ -15,6 +18,7 @@ public class CollectionFiller {
                 try {
                     tempCollection.add(PersonPull.createPerson(personStrategy));
                 } catch (NoSuchElementException eof) {
+                    System.out.println(eof.getMessage());
                     break;
                 }
             }
@@ -24,5 +28,16 @@ public class CollectionFiller {
             }
         }
         return tempCollection;
+    }
+    public static CustomCollection<Person> fillRndPrsnCollFromStream(int size) {
+        return RandomStrategy.getRandomPersonCollection(size);
+    }
+
+    public static CustomCollection<Person> fillFilePrsnCollFromStream(int size) {
+        try {
+            return FileStrategy.getFilePersonCollection(size);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

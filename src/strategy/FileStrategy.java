@@ -1,5 +1,8 @@
 package strategy;
 
+import collection.CustomCollection;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import model.Person;
@@ -7,77 +10,113 @@ import model.Person;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Spliterators;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class FileStrategy implements PersonStrategy, AutoCloseable {
-    private final JsonReader jr;
-    private boolean arrayStarted = false;
+
+    private final BufferedReader reader;
+    private final Gson gson = new Gson();
     private boolean finished = false;
+    private static final Path filePath = Paths.get("JSON.txt");
 
     public FileStrategy() {
         try {
-            Reader r = Files.newBufferedReader(Paths.get("Source_JSON_Collection_File.txt"), StandardCharsets.UTF_8);
-            this.jr = new JsonReader(r);
+            this.reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("Не удалось открыть файл для чтения:", e);
         }
     }
 
     @Override
     public void getPerson(Person.Builder b) {
-        if (finished) throw new NoSuchElementException("В файле больше нет объектов");
+        if (finished) {
+            throw new NoSuchElementException("В файле больше нет объектов");
+        }
         try {
-            if (!arrayStarted) {
-                // Ожидается формат массива типа: [ { ... }, { ... }, ... ]
-                if (jr.peek() == JsonToken.BEGIN_ARRAY) {   // peek() - для определения типа следующего токена без его извлечения (без продвижения позиции чтения)
-                    jr.beginArray();                        // проверка текущего токена на начало массива и перенос в случае успеха парсера вперед
-                    arrayStarted = true;
-                } else {
-                    throw new IllegalStateException("Ожидался JSON-массив в корне файла");
-                }
-            }
-            // hasNext() - не потребляя токен - проверяет наличие элементов - определяет, есть ли еще элементы
-            // для чтения в массиве или в объекте
-            if (!jr.hasNext()) {
-                jr.endArray(); // Проверка того, что текущий токен является концом массива (]) и завершение чтения массива с выходом.
+            String line = reader.readLine();
+
+            if (line == null) {
                 finished = true;
                 throw new NoSuchElementException("В файле больше нет объектов");
             }
 
-            // beginObject() Проверяет текущий токен - убеждается, что следующий токен в JSON-потоке является началом объекта ({)
-            // Перемещает парсер вперед - после успешной проверки переходит к чтению пар ключ-значение объекта
-            jr.beginObject();
-            while (jr.hasNext()) {
-                // nextName() - Читает ключ объекта - извлекает имя свойства из пары ключ-значение
-                // Перемещает парсер - после чтения ключа парсер готов к чтению значения
-                // Валидирует структуру - проверяет, что текущий контекст является объектом
-                String name = jr.nextName();
-                switch (name) {
-                    case "name" -> {
-                        if (jr.peek() == JsonToken.NULL) jr.nextNull();
-                        else b.name(jr.nextString());
-                    }
-                    case "age" -> {
-                        if (jr.peek() == JsonToken.NULL) jr.nextNull();
-                        else b.age(jr.nextInt());
-                    }
-                    case "weight" -> {
-                        if (jr.peek() == JsonToken.NULL) jr.nextNull();
-                        else b.weight(jr.nextDouble());
-                    }
-                    default -> jr.skipValue(); // Игнорирование лишних полей, если они есть.
-                }
+            if (line.trim().isEmpty()) {
+                // пропускаем пустые строки и пробуем следующую
+                getPerson(b);
+                return;
             }
-            jr.endObject();
 
+            // Парсим объект Person из строки
+            Person p = gson.fromJson(line, Person.class);
+
+            if (p == null) {
+                // если строка кривая – пропустим и пробуем дальше
+                getPerson(b);
+                return;
+            }
+
+            // заполняем билдер
+            b.name(p.getName());
+            b.age(p.getAge());
+            b.weight(p.getWeight());
+
+        } catch (JsonSyntaxException e) {
+            System.err.println("Ошибка синтаксиса JSON, строка пропущена.");
+            // попробуем дальше
+            getPerson(b);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    public static CustomCollection<Person> getFilePersonCollection(int size) throws IOException {
+        // Если файла нет, возвращаем пустую коллекцию
+        if (!Files.exists(filePath)) {
+            return new CustomCollection<>();
+        }
+
+        Gson gson = new Gson();
+
+        // Files.lines создает Stream<String>, который нужно закрывать,
+        // поэтому используем try-with-resources
+        try (Stream<String> lines = Files.lines(filePath, StandardCharsets.UTF_8)) {
+            return lines
+                    // Шаг 1: Преобразовать каждую строку в объект Person, обработав ошибки
+                    .map(line -> {
+                        if (line.trim().isEmpty()) {
+                            return null; // Пустые строки пропускаем
+                        }
+                        try {
+                            return gson.fromJson(line, Person.class);
+                        } catch (JsonSyntaxException e) {
+                            // Сообщаем об ошибке и возвращаем null, чтобы потом отфильтровать
+                            System.err.println("Пропуск некорректной строки JSON: " + line);
+                            return null;
+                        }
+                    })
+                    // Шаг 2: Убрать из потока все null, которые появились на шаге 1
+                    .filter(Objects::nonNull)
+                    // Шаг 3: Собрать оставшиеся объекты Person в вашу CustomCollection
+                    .collect(
+                            CustomCollection::new,      // 1. Supplier: как создать новую коллекцию
+                            CustomCollection::add,      // 2. Accumulator: как добавить элемент в коллекцию
+                            CustomCollection::addAll    // 3. Combiner: как объединить две коллекции (для параллельных стримов)
+                    );
+        }
+    }
+
     @Override
-    public void close() throws Exception {
-        jr.close();
+    public void close() throws IOException {
+        reader.close();
     }
 }

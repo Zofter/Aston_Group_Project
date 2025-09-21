@@ -31,9 +31,6 @@ public class Person {
         private double weight = 0.0;
 
         public Builder name(String name) {
-            if (name == null || name.trim().isEmpty()) {
-                throw new IllegalArgumentException("Имя не может быть пустым");
-            }
             this.name = name;
             return this;
         }
@@ -55,16 +52,13 @@ public class Person {
         }
 
         public Person build() {
-            if (name == null) {
-                throw new IllegalStateException("Имя должно быть указано");
-            }
             return new Person(this);
         }
     }
 
     @Override
     public String toString() {
-        return "model.Person {Имя: " + name + "; Вес: " + weight + "; Возраст: " + age + "}\n";
+        return "model.Person {Имя: " + name + "; Возраст: " + age + "; Вес: " + weight + "}\n";
     }
 
     @Override

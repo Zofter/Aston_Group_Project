@@ -40,12 +40,14 @@ public class CustomCollection<T> implements List<T> {
         size++;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T get(int index) {
         rangeCheck(index);
         return (T) elements[index];
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T set(int index, T element) {
         rangeCheck(index);
@@ -54,6 +56,7 @@ public class CustomCollection<T> implements List<T> {
         return oldValue;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public T remove(int index) {
         rangeCheck(index);
@@ -134,6 +137,7 @@ public class CustomCollection<T> implements List<T> {
         size = 0;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Iterator<T> iterator() {
         return new Iterator<>() {
@@ -159,6 +163,7 @@ public class CustomCollection<T> implements List<T> {
         return Arrays.copyOf(elements, size);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <E> E[] toArray(E[] a) {
         if (a.length < size) {
