@@ -1,5 +1,6 @@
 package tests;
 
+import collection.CustomCollection;
 import io.FileWriterJSON_Util;
 import model.Person;
 
@@ -17,11 +18,11 @@ public class FileWriterJSON_UtilTest {
 
     public static void testWritePersons() {
         try {
-            Path tempFile = Files.createTempFile("persons_test", ".json");
+            Path tempFile = Files.createTempFile("persons_test", ".txt");
 
-            Collection<Person> persons = createTestPersons();
+            CustomCollection<Person> persons = createTestPersons();
 
-            // FileWriterJSON_Util.writePersons(tempFile, persons);
+            FileWriterJSON_Util.writePersons(tempFile, persons);
 
             String content = Files.readString(tempFile);
 
@@ -55,7 +56,7 @@ public class FileWriterJSON_UtilTest {
         }
     }
 
-    private static Collection<Person> createTestPersons() {
+    private static CustomCollection<Person> createTestPersons() {
         Person person1 = new Person.Builder()
                 .name("Иван")
                 .age(25)
@@ -74,6 +75,10 @@ public class FileWriterJSON_UtilTest {
                 .weight(80.2)
                 .build();
 
-        return Arrays.asList(person1, person2, person3);
+        CustomCollection<Person> tempCollection = new CustomCollection<>(3);
+        tempCollection.add(person1);
+        tempCollection.add(person2);
+        tempCollection.add(person3);
+        return tempCollection;
     }
 }

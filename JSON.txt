@@ -1,4 +1,0 @@
-{"name":"User90","age":50,"weight":52.0}
-{"name":"User91","age":55,"weight":86.0}
-{"name":"User3","age":59,"weight":96.0}
-{"name":"User49","age":61,"weight":63.0}
