@@ -1,0 +1,6 @@
+{"name":"User49","age":24,"weight":69.0}
+{"name":"User96","age":30,"weight":58.0}
+{"name":"User22","age":35,"weight":84.0}
+{"name":"User70","age":53,"weight":73.0}
+{"name":"User70","age":58,"weight":56.0}
+{"name":"User40","age":63,"weight":99.0}

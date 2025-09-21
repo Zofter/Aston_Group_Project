@@ -16,7 +16,7 @@ public class FileStrategyTest {
     }
 
     public static void testFileStrategy() {
-        Path testFile = Paths.get("JSON.txt");
+        Path testFile = Paths.get("testFileStrategy.txt");
 
         try {
             createTestFile(testFile);
@@ -83,24 +83,10 @@ public class FileStrategyTest {
     }
 
     private static void createTestFile(Path filePath) throws IOException {
-        String jsonContent = "[\n" +
-                "  {\n" +
-                "    \"name\": \"Иван\",\n" +
-                "    \"age\": 25,\n" +
-                "    \"weight\": 70.5\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"name\": \"Мария\",\n" +
-                "    \"age\": 30,\n" +
-                "    \"weight\": 65.0\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"name\": \"Петр\",\n" +
-                "    \"age\": 35,\n" +
-                "    \"weight\": 80.2\n" +
-                "  }\n" +
-                "]";
-
+        String jsonContent =
+                "  {\"name\":\"Иван\",\"age\":25,\"weight\":70.5}\n" +
+                "  {\"name\":\"Мария\",\"age\":30,\"weight\":65.0}\n" +
+                "  {\"name\":\"Петр\",\"age\":35,\"weight\":80.2}\n";
         Files.writeString(filePath, jsonContent);
         System.out.println("✅ Тестовый файл создан: " + filePath);
     }
