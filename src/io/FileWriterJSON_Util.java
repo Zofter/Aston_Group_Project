@@ -1,5 +1,6 @@
 package io;
 
+import collection.CustomCollection;
 import com.google.gson.Gson;
 import model.Person;
 
@@ -13,7 +14,7 @@ import java.util.Collection;
 
 public class FileWriterJSON_Util {
     // JSON Lines формат
-    public static void writePersons(Path file, Collection<Person> persons) throws IOException {
+    public static void writePersons(Path file, CustomCollection<Person> persons) throws IOException {
         Gson gson = new Gson();
         try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8,
                 StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {

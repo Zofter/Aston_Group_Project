@@ -9,7 +9,6 @@ import strategy.RandomStrategy;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collector;
 
 public class CollectionFiller {
     public static CustomCollection<Person> fill(PersonStrategy personStrategy, int size) {
