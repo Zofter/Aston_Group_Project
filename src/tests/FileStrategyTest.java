@@ -16,7 +16,7 @@ public class FileStrategyTest {
     }
 
     public static void testFileStrategy() {
-        Path testFile = Paths.get("Source_JSON_Collection_File.txt");
+        Path testFile = Paths.get("JSON.txt");
 
         try {
             createTestFile(testFile);
