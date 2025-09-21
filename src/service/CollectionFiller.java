@@ -9,7 +9,6 @@ import strategy.RandomStrategy;
 
 import java.util.*;
 import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 public class CollectionFiller {
     public static CustomCollection<Person> fill(PersonStrategy personStrategy, int size) {
@@ -30,26 +29,11 @@ public class CollectionFiller {
         }
         return tempCollection;
     }
-    public static CustomCollection<Person> fillRandomPersonCollection(int size) {
+    public static CustomCollection<Person> fillRndPrsnCollFromStream(int size) {
         return RandomStrategy.getRandomPersonCollection(size);
     }
 
-    public static CustomCollection<Person> fillFromFilePersonCollection(int size) {
-        try (FileStrategy fs = new FileStrategy()) {
-            return FileStrategy.stream()
-                    .limit(size) // если нужно ограничить кол-во
-                    .collect(
-                            Collector.of(
-                                    () -> new CustomCollection<>(size),   // supplier (как создать пустую коллекцию)
-                                    CustomCollection::add,                // accumulator (как добавить элемент)
-                                    (left, right) -> {                    // combiner (если стрим будет параллельный)
-                                        left.addAll(right);
-                                        return left;
-                                    }
-                            )
-                    );
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public static CustomCollection<Person> fillFilePrsnCollFromStream(int size) {
+        return FileStrategy.getFilePersonCollection(size);
     }
 }

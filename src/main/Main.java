@@ -69,7 +69,11 @@ public class Main {
         personCollection = switch (typeFillingCollection) {
             case "random" -> CollectionFiller.fill(new RandomStrategy(), collectionSize);
             case "self" -> CollectionFiller.fill(new ManualStrategy(), collectionSize);
-            case "file" -> CollectionFiller.fillFromFilePersonCollection(collectionSize);
+            case "file" -> CollectionFiller.fill(new FileStrategy(), collectionSize);
+
+            // case "random" -> CollectionFiller.fillRndPrsnCollFromStream(collectionSize);
+            // case "file" -> CollectionFiller.fillFilePrsnCollFromStream(collectionSize);
+
             default -> {
                 System.out.println("Неверный выбор, используется random");
                 yield CollectionFiller.fill(new RandomStrategy(), collectionSize);
@@ -97,7 +101,7 @@ public class Main {
                 System.out.println("Команда не распознана, выбрана сортировка по возрасту");
                 CollectionSorter.sort(personCollection, new PersonAgeComparator());
             }
-        };
+        }
 
         System.out.println("Вывод отсортированной коллекции:");
         personCollection.forEach(System.out::print);
@@ -136,7 +140,7 @@ public class Main {
             default -> throw new IllegalStateException("Неизвестное значение имени параметра Person: " + sortField);
         };
 
-        OptionalInt idx = BinarySearch.search(personCollection, searchPerson, new PersonAgeComparator());
+        OptionalInt idx = BinarySearch.search(personCollection, searchPerson, byField);
         if(idx.isPresent()) {
             System.out.println("Порядковый индекс искомого элемента: " + idx.getAsInt());
         } else {
@@ -160,8 +164,7 @@ public class Main {
                 .weight(weight)
                 .build();
 
-        int occurrCount = countOccurrencesMultiThreaded(personCollection, targetPerson, 3);
-        System.out.println("Количество вхождений искомого элемента: " + occurrCount + "\n");
-
+        int occurCount = countOccurrencesMultiThreaded(personCollection, targetPerson, 3);
+        System.out.println("Количество вхождений искомого элемента: " + occurCount + "\n");
     }
 }
