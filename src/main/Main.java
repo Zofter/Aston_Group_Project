@@ -109,7 +109,7 @@ public class Main {
         System.out.println("Записать результат в файл? (y/n): ");
         try {
             if (in.nextLine().equalsIgnoreCase("y")) {
-                FileWriterJSON_Util.writePersons(Paths.get("Output.txt"), personCollection);
+                FileWriterJSON_Util.writePersons(Paths.get("JSON.txt"), personCollection);
                 System.out.println("Результат записан в output.txt");
             }
         } catch (IOException e) {

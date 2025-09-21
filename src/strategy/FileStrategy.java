@@ -1,6 +1,8 @@
 package strategy;
 
 import collection.CustomCollection;
+import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import model.Person;
@@ -8,157 +10,113 @@ import model.Person;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 public class FileStrategy implements PersonStrategy, AutoCloseable {
-    private final Reader mainReader;
-    private final JsonReader mainJr;
-    private final AtomicBoolean arrayStarted = new AtomicBoolean(false);
+
+    private final BufferedReader reader;
+    private final Gson gson = new Gson();
     private boolean finished = false;
+    private static final Path filePath = Paths.get("JSON.txt");
 
     public FileStrategy() {
         try {
-            this.mainReader = Files.newBufferedReader(Paths.get("Source_JSON_Collection_File.txt"), StandardCharsets.UTF_8);
-            this.mainJr = new JsonReader(mainReader);
+            this.reader = Files.newBufferedReader(filePath, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new UncheckedIOException("Не удалось открыть файл для чтения:", e);
         }
     }
 
     @Override
     public void getPerson(Person.Builder b) {
-        if (finished) throw new NoSuchElementException("В файле больше нет объектов");
+        if (finished) {
+            throw new NoSuchElementException("В файле больше нет объектов");
+        }
         try {
-            ensureArrayStarted(mainJr, arrayStarted);
-            if (!mainJr.hasNext()) {
-                mainJr.endArray();
+            String line = reader.readLine();
+
+            if (line == null) {
                 finished = true;
                 throw new NoSuchElementException("В файле больше нет объектов");
             }
-            parsePerson(mainJr, b);
+
+            if (line.trim().isEmpty()) {
+                // пропускаем пустые строки и пробуем следующую
+                getPerson(b);
+                return;
+            }
+
+            // Парсим объект Person из строки
+            Person p = gson.fromJson(line, Person.class);
+
+            if (p == null) {
+                // если строка кривая – пропустим и пробуем дальше
+                getPerson(b);
+                return;
+            }
+
+            // заполняем билдер
+            b.name(p.getName());
+            b.age(p.getAge());
+            b.weight(p.getWeight());
+
+        } catch (JsonSyntaxException e) {
+            System.err.println("Ошибка синтаксиса JSON, строка пропущена.");
+            // попробуем дальше
+            getPerson(b);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static CustomCollection<Person> getFilePersonCollection(int size) {
-        return stream().limit(size)
-                .collect(
-                        Collector.of(
-                                () -> new CustomCollection<>(size),
-                                CustomCollection::add,
-                                (left, right) -> {
-                                    left.addAll(right);
-                                    return left;
-                                }
-                        )
-                );
-    }
-
-    public static Stream<Person> stream() {
-        try {
-            Reader r = Files.newBufferedReader(Paths.get("Source_JSON_Collection_File.txt"), StandardCharsets.UTF_8);
-            JsonReader jr = new JsonReader(r);
-            PersonIterator it = new PersonIterator(jr);
-
-            return StreamSupport.stream(
-                    Spliterators.spliteratorUnknownSize(it, 0),
-                    false
-            ).onClose(() -> {
-                try {
-                    jr.close();
-                    r.close();
-                } catch (IOException ignore) {
-                }
-            });
-
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    static class PersonIterator implements Iterator<Person> {
-        private final JsonReader jr;
-        private final AtomicBoolean arrayStarted = new AtomicBoolean(false);
-        private boolean finished = false;
-
-        PersonIterator(JsonReader jr) {
-            this.jr = jr;
+    public static CustomCollection<Person> getFilePersonCollection(int size) throws IOException {
+        // Если файла нет, возвращаем пустую коллекцию
+        if (!Files.exists(filePath)) {
+            return new CustomCollection<>();
         }
 
-        @Override
-        public boolean hasNext() {
-            if (finished) return false;
-            try {
-                ensureArrayStarted(jr, arrayStarted);
-                if (!jr.hasNext()) {
-                    jr.endArray();
-                    finished = true;
-                    return false;
-                }
-                return true;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
+        Gson gson = new Gson();
 
-        @Override
-        public Person next() {
-            if (!hasNext()) throw new NoSuchElementException("Больше людей нет");
-            try {
-                Person.Builder b = new Person.Builder();
-                parsePerson(jr, b); // общий метод
-                return b.build();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }
-    }
-
-    private static void parsePerson(JsonReader jr, Person.Builder b) throws IOException {
-        jr.beginObject();
-        while (jr.hasNext()) {
-            String name = jr.nextName();
-            switch (name) {
-                case "name" -> {
-                    if (jr.peek() == JsonToken.NULL) jr.nextNull();
-                    else b.name(jr.nextString());
-                }
-                case "age" -> {
-                    if (jr.peek() == JsonToken.NULL) jr.nextNull();
-                    else b.age(jr.nextInt());
-                }
-                case "weight" -> {
-                    if (jr.peek() == JsonToken.NULL) jr.nextNull();
-                    else b.weight(jr.nextDouble());
-                }
-                default -> jr.skipValue();
-            }
-        }
-        jr.endObject();
-    }
-
-    private static void ensureArrayStarted(JsonReader jr, AtomicBoolean arrayStarted) throws IOException {
-        if (!arrayStarted.get()) {
-            if (jr.peek() == JsonToken.BEGIN_ARRAY) {
-                jr.beginArray();
-                arrayStarted.set(true);
-            } else {
-                throw new IllegalStateException("Ожидался JSON-массив в корне файла");
-            }
+        // Files.lines создает Stream<String>, который нужно закрывать,
+        // поэтому используем try-with-resources
+        try (Stream<String> lines = Files.lines(filePath, StandardCharsets.UTF_8)) {
+            return lines
+                    // Шаг 1: Преобразовать каждую строку в объект Person, обработав ошибки
+                    .map(line -> {
+                        if (line.trim().isEmpty()) {
+                            return null; // Пустые строки пропускаем
+                        }
+                        try {
+                            return gson.fromJson(line, Person.class);
+                        } catch (JsonSyntaxException e) {
+                            // Сообщаем об ошибке и возвращаем null, чтобы потом отфильтровать
+                            System.err.println("Пропуск некорректной строки JSON: " + line);
+                            return null;
+                        }
+                    })
+                    // Шаг 2: Убрать из потока все null, которые появились на шаге 1
+                    .filter(Objects::nonNull)
+                    // Шаг 3: Собрать оставшиеся объекты Person в вашу CustomCollection
+                    .collect(
+                            CustomCollection::new,      // 1. Supplier: как создать новую коллекцию
+                            CustomCollection::add,      // 2. Accumulator: как добавить элемент в коллекцию
+                            CustomCollection::addAll    // 3. Combiner: как объединить две коллекции (для параллельных стримов)
+                    );
         }
     }
 
     @Override
-    public void close() throws Exception {
-        mainJr.close();
-        mainReader.close();
+    public void close() throws IOException {
+        reader.close();
     }
 }

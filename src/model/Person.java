@@ -58,7 +58,7 @@ public class Person {
 
     @Override
     public String toString() {
-        return "model.Person {Имя: " + name + "; Вес: " + weight + "; Возраст: " + age + "}\n";
+        return "model.Person {Имя: " + name + "; Возраст: " + age + "; Вес: " + weight + "}\n";
     }
 
     @Override

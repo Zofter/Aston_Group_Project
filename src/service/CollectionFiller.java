@@ -7,6 +7,7 @@ import strategy.FileStrategy;
 import strategy.PersonStrategy;
 import strategy.RandomStrategy;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collector;
 
@@ -34,6 +35,10 @@ public class CollectionFiller {
     }
 
     public static CustomCollection<Person> fillFilePrsnCollFromStream(int size) {
-        return FileStrategy.getFilePersonCollection(size);
+        try {
+            return FileStrategy.getFilePersonCollection(size);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
