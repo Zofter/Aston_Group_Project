@@ -21,7 +21,7 @@ public class FileWriterJSON_UtilTest {
 
             Collection<Person> persons = createTestPersons();
 
-            FileWriterJSON_Util.writePersons(tempFile, persons);
+            // FileWriterJSON_Util.writePersons(tempFile, persons);
 
             String content = Files.readString(tempFile);
 

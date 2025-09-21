@@ -1,8 +1,4 @@
-{"name":"User91","age":25,"weight":96.0}
-{"name":"User86","age":36,"weight":66.0}
-{"name":"User99","age":50,"weight":87.0}
-{"name":"User91","age":25,"weight":96.0}
-{"name":"User1","age":61,"weight":87.0}
-{"name":"User99","age":50,"weight":87.0}
-{"name":"User99","age":56,"weight":93.0}
-{"name":"User99","age":50,"weight":87.0}
+{"name":"User90","age":50,"weight":52.0}
+{"name":"User91","age":55,"weight":86.0}
+{"name":"User3","age":59,"weight":96.0}
+{"name":"User49","age":61,"weight":63.0}

@@ -68,13 +68,13 @@ public class Main {
         String typeFillingCollection = in.nextLine();
 
         personCollection = switch (typeFillingCollection) {
-            case "random" -> CollectionFiller.fill(new RandomStrategy(), collectionSize);
             case "self" -> CollectionFiller.fill(new ManualStrategy(), collectionSize);
-            case "file" -> CollectionFiller.fill(new FileStrategy(), collectionSize);
+//            case "random" -> CollectionFiller.fill(new RandomStrategy(), collectionSize);
+//            case "file" -> CollectionFiller.fill(new FileStrategy(), collectionSize);
 
             // Дополнительное задание 3 - Заполнение коллекций через Stream's
-            // case "random" -> CollectionFiller.fillRndPrsnCollFromStream(collectionSize);
-            // case "file" -> CollectionFiller.fillFilePrsnCollFromStream(collectionSize);
+             case "random" -> CollectionFiller.fillRndPrsnCollFromStream(collectionSize);
+             case "file" -> CollectionFiller.fillFilePrsnCollFromStream(collectionSize);
 
             default -> {
                 System.out.println("Неверный выбор, используется random");
