@@ -69,7 +69,7 @@ public class Main {
         personCollection = switch (typeFillingCollection) {
             case "random" -> CollectionFiller.fill(new RandomStrategy(), collectionSize);
             case "self" -> CollectionFiller.fill(new ManualStrategy(), collectionSize);
-            case "file" -> CollectionFiller.fill(new FileStrategy(), collectionSize);
+            case "file" -> CollectionFiller.fillFromFilePersonCollection(collectionSize);
             default -> {
                 System.out.println("Неверный выбор, используется random");
                 yield CollectionFiller.fill(new RandomStrategy(), collectionSize);
