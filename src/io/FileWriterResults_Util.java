@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 
+// Доп. задание #2 - Реализовать функционал для записи отсортированных коллекций/ найденных значений в файл в режиме добавления данных.
 public class FileWriterResults_Util {
     public static void writeResults(Path file, Collection<Person> persons, Person searchPerson, String message) throws IOException {
         Gson gson = new Gson();
@@ -18,12 +19,13 @@ public class FileWriterResults_Util {
                 StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
             writer.write("Коллекция:");
             writer.newLine();
-            // 1. Записываем коллекцию как JSON-line
+            // Запись коллекции в JSON-line формате
             for (Person person : persons) {
                 gson.toJson(person, writer);
                 writer.newLine();
             }
-            // 2. Записываем строку
+
+            // Запись строки с искомым элементом
             writer.write("_____________");
             writer.newLine();
             writer.write("Искомый элемент: ");
@@ -31,7 +33,8 @@ public class FileWriterResults_Util {
             writer.write(" -> ");
             writer.write(message);
             writer.newLine();
-            // 3. Записываем разделитель
+
+            // Запись разделителя
             writer.write("-----------------------------------------------------------");
             writer.newLine();
         }

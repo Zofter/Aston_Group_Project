@@ -7,6 +7,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.ToIntFunction;
 
+// Дополнительное задание #1: Сортировка элементов на четных местах.
 public class CollectionEvenSorter {
 
     public static <T> void sort(List<T> list, Comparator<T> comp, ToIntFunction<T> key) {
@@ -19,7 +20,6 @@ public class CollectionEvenSorter {
 
         ForkJoinPool forkJoinPool = ForkJoinPool.commonPool();
         forkJoinPool.invoke(new QuickSortTask<>(list, evenIndexArr, 0, m - 1, comp));
-
     }
 
     private static class QuickSortTask<T> extends RecursiveAction {

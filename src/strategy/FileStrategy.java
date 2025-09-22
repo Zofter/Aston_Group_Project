@@ -3,8 +3,6 @@ package strategy;
 import collection.CustomCollection;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
 import model.Person;
 
 import java.io.*;
@@ -12,15 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Objects;
-import java.util.Spliterators;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 public class FileStrategy implements PersonStrategy, AutoCloseable {
 
@@ -59,7 +51,7 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
             }
 
             if (line.trim().isEmpty()) {
-                // пропускаем пустые строки и пробуем следующую
+                // Пропускаем пустые строки и пробуем следующую
                 getPerson(b);
                 return;
             }
@@ -68,19 +60,18 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
             Person p = gson.fromJson(line, Person.class);
 
             if (p == null) {
-                // если строка кривая – пропустим и пробуем дальше
+                // Если строка кривая – пропустим и пробуем дальше
                 getPerson(b);
                 return;
             }
 
-            // заполняем билдер
+            // Заполняем билдер
             b.name(p.getName());
             b.age(p.getAge());
             b.weight(p.getWeight());
 
         } catch (JsonSyntaxException e) {
             System.err.println("Ошибка синтаксиса JSON, строка пропущена.");
-            // попробуем дальше
             getPerson(b);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -95,8 +86,7 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
 
         Gson gson = new Gson();
 
-        // Files.lines создает Stream<String>, который нужно закрывать,
-        // поэтому используем try-with-resources
+        // Files.lines создает Stream<String>, который нужно закрывать, поэтому используем try-with-resources
         try (Stream<String> lines = Files.lines(filePath, StandardCharsets.UTF_8)) {
             return lines
                     // Шаг 1: Преобразовать каждую строку в объект Person, обработав ошибки
@@ -121,6 +111,7 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
                             CustomCollection::addAll    // 3. Combiner: как объединить две коллекции (для параллельных стримов)
                     );
         }
+
     }
 
     @Override

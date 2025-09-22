@@ -43,7 +43,6 @@ public class CountOccurrMultiThreaded {
             });
         }
 
-
         // Создаём пул потоков фиксированного размера.
         ExecutorService executor = Executors.newFixedThreadPool(threadCount); // Пул потоков
 

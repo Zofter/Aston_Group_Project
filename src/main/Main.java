@@ -65,6 +65,7 @@ class MenuController {
         int collectionSize = InputUtils.readInt(scanner, "Укажите длину коллекции: ");
         String fillingType = InputUtils.readLine(scanner, "Выберите способ заполнения (random/self/file): ");
 
+        // Заполнение коллекции через выбор стратегии сортировки - и возможности использования Stream API.
         personCollection = switch (fillingType) {
             case "self" -> CollectionFiller.fill(new ManualStrategy(), collectionSize);
             case "random" -> {
@@ -92,12 +93,14 @@ class MenuController {
         System.out.println("Сгенерированная коллекция: ");
         personCollection.forEach(System.out::print);
 
+        // Сортировка коллекции
         sortField = InputUtils.readLine(scanner, "Выберите поле для сортировки (name/age/weight): ");
         sortCollection();
 
         System.out.println("Вывод отсортированной коллекции:");
         personCollection.forEach(System.out::print);
 
+        // Сохранение в файл в формате Json-Line
         FileUtils.askAndWriteJSON(scanner, personCollection);
     }
 
@@ -132,6 +135,7 @@ class MenuController {
         System.out.println("Укажите искомый объект Person для поиска в коллекции:");
         Person searchPerson = InputUtils.readPerson(scanner);
 
+        // Получение компаратора для бинарного поиска через установленное поле для сортировки sortField
         Comparator<Person> byField = switch (sortField) {
             case "name" -> new PersonNameComparator();
             case "age" -> new PersonAgeComparator();
@@ -139,12 +143,15 @@ class MenuController {
             default -> new PersonAgeComparator();
         };
 
+        // Осуществление бинарного поиска
         OptionalInt idx = BinarySearch.search(personCollection, searchPerson, byField);
+
         String message = idx.isPresent()
                 ? "Порядковый индекс искомого элемента: " + idx.getAsInt()
                 : "Искомый элемент не найден";
         System.out.println(message);
 
+        // Сохранение в файл в формате Json-Line
         FileUtils.askAndWriteResults(scanner, personCollection, searchPerson, message);
     }
 
@@ -158,28 +165,40 @@ class MenuController {
         }
 
         System.out.println("Укажите искомый объект Person для подсчета числа вхождений:");
-        Person person = InputUtils.readPerson(scanner);
+        Person searchingPerson = InputUtils.readPerson(scanner);
 
-        int occurCount = countOccurrencesMultiThreaded(personCollection, person, 3);
+        // Функция подсчета вхождений объекта Person в коллекции
+        int occurCount = countOccurrencesMultiThreaded(personCollection, searchingPerson, 3);
+
         String message = "Количество вхождений искомого элемента: " + occurCount;
         System.out.println(message);
 
-        FileUtils.askAndWriteResults(scanner, personCollection, person, message);
+        // Сохранение в файл в формате Json-Line
+        FileUtils.askAndWriteResults(scanner, personCollection, searchingPerson, message);
     }
 
     //============================================================
-    // Утилиты для ввода
+    // Методы для ввода с консоли
     //============================================================
     class InputUtils {
         static int readInt(Scanner sc, String msg) {
+            int value;
             System.out.print(msg);
-            while (!sc.hasNextInt()) {
-                System.out.print("Ошибка ввода. Повторите: ");
-                sc.next();
+            while (true) {
+                if (!sc.hasNextInt()) {
+                    System.out.print("Ошибка: введите целое число. Повторите: ");
+                    sc.next();
+                } else {
+                    value = sc.nextInt();
+                    if (value <= 0) {
+                        System.out.print("Ошибка: число должно быть больше нуля . Повторите: ");
+                    } else {
+                        break;
+                    }
+                }
             }
-            int res = sc.nextInt();
             sc.nextLine();
-            return res;
+            return value;
         }
 
         static String readLine(Scanner sc, String msg) {
@@ -207,7 +226,7 @@ class MenuController {
     }
 
     //============================================================
-    // Утилиты для записи в файл
+    // Методы для записи в файл
     //============================================================
     class FileUtils {
         static void askAndWriteJSON(Scanner sc, CustomCollection<Person> collection) {
