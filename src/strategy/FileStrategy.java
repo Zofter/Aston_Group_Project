@@ -105,7 +105,9 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
                     })
                     // Шаг 2: Убрать из потока все null, которые могли появиться на шаге 1
                     .filter(Objects::nonNull)
-                    // Шаг 3: Собрать оставшиеся объекты Person в CustomCollection
+                    // Шаг 3: обрезать коллекцию по размеру
+                    .limit(size)
+                    // Шаг 4: Собрать оставшиеся объекты Person в CustomCollection
                     .collect(
                             CustomCollection::new,      // 1. Supplier - создаёт новую пустую коллекцию для результатов
                             CustomCollection::add,      // 2. Accumulator - как добавить каждый элемент в коллекцию
