@@ -7,7 +7,7 @@ import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.RecursiveAction;
 import java.util.function.ToIntFunction;
 
-// Дополнительное задание #1: Сортировка элементов на четных местах.
+// Дополнительное задание #1: Сортировка элементов на четных позициях.
 public class CollectionEvenSorter {
 
     public static <T> void sort(List<T> list, Comparator<T> comp, ToIntFunction<T> key) {

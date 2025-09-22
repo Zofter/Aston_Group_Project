@@ -86,7 +86,8 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
 
         Gson gson = new Gson();
 
-        // Files.lines создает Stream<String>, который нужно закрывать, поэтому используем try-with-resources
+        // Files.lines(...) открывает файл и возвращает поток строк (Stream<String>), где каждая строка — одна строчка файла.
+        // и его нужно закрывать, поэтому используем try-with-resources
         try (Stream<String> lines = Files.lines(filePath, StandardCharsets.UTF_8)) {
             return lines
                     // Шаг 1: Преобразовать каждую строку в объект Person, обработав ошибки
@@ -102,16 +103,15 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
                             return null;
                         }
                     })
-                    // Шаг 2: Убрать из потока все null, которые появились на шаге 1
+                    // Шаг 2: Убрать из потока все null, которые могли появиться на шаге 1
                     .filter(Objects::nonNull)
-                    // Шаг 3: Собрать оставшиеся объекты Person в вашу CustomCollection
+                    // Шаг 3: Собрать оставшиеся объекты Person в CustomCollection
                     .collect(
-                            CustomCollection::new,      // 1. Supplier: как создать новую коллекцию
-                            CustomCollection::add,      // 2. Accumulator: как добавить элемент в коллекцию
-                            CustomCollection::addAll    // 3. Combiner: как объединить две коллекции (для параллельных стримов)
+                            CustomCollection::new,      // 1. Supplier - создаёт новую пустую коллекцию для результатов
+                            CustomCollection::add,      // 2. Accumulator - как добавить каждый элемент в коллекцию
+                            CustomCollection::addAll    // 3. Combiner - объединить две частичные коллекции (для параллельных стримов)
                     );
         }
-
     }
 
     @Override
