@@ -3,6 +3,7 @@ package main;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+
 import comparator.*;
 import io.FileWriterJSON_Util;
 import io.FileWriterResults_Util;
@@ -13,71 +14,77 @@ import service.CollectionSorter;
 import strategy.*;
 import service.CollectionFiller;
 import collection.CustomCollection;
-
 import static service.CountOccurrMultiThreaded.countOccurrencesMultiThreaded;
 
 public class Main {
-    private static CustomCollection<Person> personCollection = new CustomCollection<>();
-    private static String sortField = "";
-
     public static void main(String[] args) {
-        boolean workInMainCycle = true;
+        new MenuController().run();
+    }
+}
 
-        Scanner in = new Scanner(System.in);
+//============================================================
+// Управление меню
+//============================================================
+class MenuController {
+    private CustomCollection<Person> personCollection = new CustomCollection<>();
+    private String sortField = "";
+    private final Scanner scanner = new Scanner(System.in);
 
-        while (workInMainCycle) {
-            System.out.println("=== Меню ===");
-            System.out.println("1. Создать/заполнить и отсортировать коллекцию");
-            System.out.println("2. Бинарный поиск");
-            System.out.println("3. Подсчет вхождений (многопоточный)");
-            System.out.println("4. Выход");
-            System.out.print("Выберите номер опции: ");
+    public void run() {
+        boolean running = true;
 
-            int choice = in.nextInt();
-            in.nextLine();
+        while (running) {
+            printMenu();
+            int choice = InputUtils.readInt(scanner, "Выберите номер опции: ");
 
             switch (choice) {
-                case 1 -> createAndSortCollection(in);
-                case 2 -> {
-                    if (personCollection.isEmpty()) {
-                        System.out.println("Сначала создайте и отсортируйте коллекцию!\n");
-                        break;
-                    }
-                    binarySearch(in);
-                }
-                case 3 -> {
-                    if (personCollection.isEmpty()) {
-                        System.out.println("Сначала создайте и отсортируйте коллекцию!\n");
-                        break;
-                    }
-                    countOccurrences(in);
-                }
-                case 4 -> workInMainCycle = false;
+                case 1 -> createAndSortCollection();
+                case 2 -> performBinarySearch();
+                case 3 -> performCountOccurrences();
+                case 4 -> running = false;
                 default -> System.out.println("Неверный выбор");
             }
         }
         System.out.println("Выход из программы");
     }
 
-    private static void createAndSortCollection(Scanner in) {
-        System.out.println("Укажите длину коллекции: ");
-        int collectionSize = in.nextInt();
-        in.nextLine();
+    void printMenu() {
+        System.out.println("""
+                === Меню ===
+                1. Создать/заполнить и отсортировать коллекцию
+                2. Бинарный поиск
+                3. Подсчет вхождений (многопоточный)
+                4. Выход
+                """);
+    }
 
-        System.out.println("Выберите способ заполнения (random/self/file): ");
-        String typeFillingCollection = in.nextLine();
+    //========================
+    // Пункт 1: Заполнение + сортировка коллекции
+    //========================
+    private void createAndSortCollection() {
+        int collectionSize = InputUtils.readInt(scanner, "Укажите длину коллекции: ");
+        String fillingType = InputUtils.readLine(scanner, "Выберите способ заполнения (random/self/file): ");
 
-        personCollection = switch (typeFillingCollection) {
+        personCollection = switch (fillingType) {
             case "self" -> CollectionFiller.fill(new ManualStrategy(), collectionSize);
-            case "random" -> CollectionFiller.fill(new RandomStrategy(), collectionSize);
-            case "file" -> CollectionFiller.fill(new FileStrategy(), collectionSize);
-
-            // Дополнительное задание 3 - Заполнение коллекций через Stream's
-            // case "random" -> CollectionFiller.fillRndPrsnCollFromStream(collectionSize);
-            // case "file" -> CollectionFiller.fillFilePrsnCollFromStream(collectionSize);
-
+            case "random" -> {
+                String ans = InputUtils.readLine(scanner, "Использовать Stream API? (y/n): ");
+                if (ans.equalsIgnoreCase("y")) {
+                    yield CollectionFiller.fillRndPrsnCollFromStream(collectionSize);
+                } else {
+                    yield CollectionFiller.fill(new RandomStrategy(), collectionSize);
+                }
+            }
+            case "file" -> {
+                String ans = InputUtils.readLine(scanner, "Использовать Stream API? (y/n): ");
+                if (ans.equalsIgnoreCase("y")) {
+                    yield CollectionFiller.fillFilePrsnCollFromStream(collectionSize);
+                } else {
+                    yield CollectionFiller.fill(new FileStrategy(), collectionSize);
+                }
+            }
             default -> {
-                System.out.println("Неверный выбор, используется random");
+                System.out.println("Неверный выбор, используется random без Stream API");
                 yield CollectionFiller.fill(new RandomStrategy(), collectionSize);
             }
         };
@@ -85,14 +92,21 @@ public class Main {
         System.out.println("Сгенерированная коллекция: ");
         personCollection.forEach(System.out::print);
 
-        System.out.println("Выберите поле для сортировки (name/age/weight): ");
-        sortField = in.nextLine();
+        sortField = InputUtils.readLine(scanner, "Выберите поле для сортировки (name/age/weight): ");
+        sortCollection();
 
+        System.out.println("Вывод отсортированной коллекции:");
+        personCollection.forEach(System.out::print);
+
+        FileUtils.askAndWriteJSON(scanner, personCollection);
+    }
+
+    private void sortCollection() {
         switch (sortField) {
             case "name" -> CollectionSorter.sort(personCollection, new PersonNameComparator());
             case "age" -> {
-                System.out.println("Применить сортировку только для четных значений возраста? (y/n): ");
-                if (in.nextLine().equalsIgnoreCase("y")) {
+                String answer = InputUtils.readLine(scanner, "Применить сортировку только для четных возрастов? (y/n): ");
+                if (answer.equalsIgnoreCase("y")) {
                     CollectionEvenSorter.sort(personCollection, new PersonAgeComparator(), Person::getAge);
                 } else {
                     CollectionSorter.sort(personCollection, new PersonAgeComparator());
@@ -104,98 +118,121 @@ public class Main {
                 CollectionSorter.sort(personCollection, new PersonAgeComparator());
             }
         }
-
-        System.out.println("Вывод отсортированной коллекции:");
-        personCollection.forEach(System.out::print);
-
-        System.out.println("Записать результат в файл? (y/n): ");
-        try {
-            if (in.nextLine().equalsIgnoreCase("y")) {
-                FileWriterJSON_Util.writePersons(Paths.get("JSON.txt"), personCollection);
-                System.out.println("Результат записан в JSON.txt");
-            }
-        } catch (IOException e) {
-            System.out.println("Ошибка записи в файл: " + e.getMessage());
-        }
     }
 
-    private static void binarySearch(Scanner in) {
-        String message;
-        System.out.println("Введите данные для поиска:");
-        System.out.print("Имя: ");
-        String name = in.nextLine();
-        System.out.print("Возраст: ");
-        int age = in.nextInt();
-        System.out.print("Вес: ");
-        double weight = in.nextDouble();
-        in.nextLine();
+    //========================
+    // Пункт 2: Бинарный поиск
+    //========================
+    private void performBinarySearch() {
+        if (personCollection.isEmpty()) {
+            System.out.println("Сначала создайте и отсортируйте коллекцию!\n");
+            return;
+        }
 
-        Person searchPerson = new Person.Builder()
-                .name(name)
-                .age(age)
-                .weight(weight)
-                .build();
+        System.out.println("Укажите искомый объект Person для поиска в коллекции:");
+        Person searchPerson = InputUtils.readPerson(scanner);
 
-        Comparator<Person> byField = switch(sortField) {
+        Comparator<Person> byField = switch (sortField) {
             case "name" -> new PersonNameComparator();
             case "age" -> new PersonAgeComparator();
             case "weight" -> new PersonWeightComparator();
-            default -> {
-                System.out.println("Неизвестное значение имени параметра Person: " + sortField);
-                System.out.println("Выбрана сортировка по возрасту");
-                yield new PersonAgeComparator();
-            }
+            default -> new PersonAgeComparator();
         };
 
         OptionalInt idx = BinarySearch.search(personCollection, searchPerson, byField);
-        if (idx.isPresent()) {
-            message = "Порядковый индекс искомого элемента: " + idx.getAsInt();
-            System.out.println(message);
-        } else {
-            message = "Искомый элемент не найден";
-            System.out.println(message);
-        }
-
-        System.out.println("Записать результат в файл? (y/n): ");
-        try {
-            if (in.nextLine().equalsIgnoreCase("y")) {
-                FileWriterResults_Util.writeResults(Paths.get("Results.txt"), personCollection, searchPerson, message);
-                System.out.println("Результат записан в Results.txt");
-            }
-        } catch (IOException e) {
-            System.out.println("Ошибка записи в файл: " + e.getMessage());
-        }
-    }
-
-    private static void countOccurrences(Scanner in) {
-        String message;
-        System.out.println("Введите данные объекта для подсчета количества вхождений его в коллекцию: ");
-        System.out.print("Имя: ");
-        String name = in.nextLine();
-        System.out.print("Возраст: ");
-        int age = in.nextInt();
-        System.out.print("Вес: ");
-        double weight = in.nextDouble();
-        in.nextLine();
-
-        Person targetPerson = new Person.Builder()
-                .name(name)
-                .age(age)
-                .weight(weight)
-                .build();
-
-        int occurCount = countOccurrencesMultiThreaded(personCollection, targetPerson, 3);
-        message = "Количество вхождений искомого элемента: " + occurCount;
+        String message = idx.isPresent()
+                ? "Порядковый индекс искомого элемента: " + idx.getAsInt()
+                : "Искомый элемент не найден";
         System.out.println(message);
 
-        System.out.println("Записать результат в файл? (y/n): ");
-        try {
-            if (in.nextLine().equalsIgnoreCase("y")) {
-                FileWriterResults_Util.writeResults(Paths.get("Results.txt"), personCollection, targetPerson, message);
-                System.out.println("Результат записан в Results.txt");
+        FileUtils.askAndWriteResults(scanner, personCollection, searchPerson, message);
+    }
+
+    //========================
+    // Пункт 3: Подсчёт вхождений
+    //========================
+    private void performCountOccurrences() {
+        if (personCollection.isEmpty()) {
+            System.out.println("Сначала создайте и отсортируйте коллекцию!\n");
+            return;
+        }
+
+        System.out.println("Укажите искомый объект Person для подсчета числа вхождений:");
+        Person person = InputUtils.readPerson(scanner);
+
+        int occurCount = countOccurrencesMultiThreaded(personCollection, person, 3);
+        String message = "Количество вхождений искомого элемента: " + occurCount;
+        System.out.println(message);
+
+        FileUtils.askAndWriteResults(scanner, personCollection, person, message);
+    }
+
+    //============================================================
+    // Утилиты для ввода
+    //============================================================
+    class InputUtils {
+        static int readInt(Scanner sc, String msg) {
+            System.out.print(msg);
+            while (!sc.hasNextInt()) {
+                System.out.print("Ошибка ввода. Повторите: ");
+                sc.next();
             }
-        } catch (IOException e) {
-            System.out.println("Ошибка записи в файл: " + e.getMessage());
+            int res = sc.nextInt();
+            sc.nextLine();
+            return res;
+        }
+
+        static String readLine(Scanner sc, String msg) {
+            System.out.print(msg);
+            return sc.nextLine();
+        }
+
+        static Person readPerson(Scanner sc) {
+            String name = readLine(sc, "Имя: ");
+            int age = readInt(sc, "Возраст: ");
+            double weight = readDouble(sc, "Вес: ");
+            return new Person.Builder().name(name).age(age).weight(weight).build();
+        }
+
+        static double readDouble(Scanner sc, String msg) {
+            System.out.print(msg);
+            while (!sc.hasNextDouble()) {
+                System.out.print("Ошибка ввода. Повторите: ");
+                sc.next();
+            }
+            double res = sc.nextDouble();
+            sc.nextLine();
+            return res;
         }
     }
+
+    //============================================================
+    // Утилиты для записи в файл
+    //============================================================
+    class FileUtils {
+        static void askAndWriteJSON(Scanner sc, CustomCollection<Person> collection) {
+            String ans = InputUtils.readLine(sc, "Записать результат в файл? (y/n): ");
+            if (ans.equalsIgnoreCase("y")) {
+                try {
+                    FileWriterJSON_Util.writePersons(Paths.get("JSON.txt"), collection);
+                    System.out.println("Результат записан в JSON.txt");
+                } catch (IOException e) {
+                    System.out.println("Ошибка записи в файл: " + e.getMessage());
+                }
+            }
+        }
+
+        static void askAndWriteResults(Scanner sc, CustomCollection<Person> collection, Person target, String message) {
+            String ans = InputUtils.readLine(sc, "Записать результат в файл? (y/n): ");
+            if (ans.equalsIgnoreCase("y")) {
+                try {
+                    FileWriterResults_Util.writeResults(Paths.get("Results.txt"), collection, target, message);
+                    System.out.println("Результат записан в Results.txt");
+                } catch (IOException e) {
+                    System.out.println("Ошибка записи в файл: " + e.getMessage());
+                }
+            }
+        }
+    }
+
 }
