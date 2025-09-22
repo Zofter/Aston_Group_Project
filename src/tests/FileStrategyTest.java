@@ -35,7 +35,7 @@ public class FileStrategyTest {
     }
 
     private static void testReadingPersons() {
-        try (FileStrategy strategy = new FileStrategy()) {
+        try (FileStrategy strategy = new FileStrategy("testFileStrategy.txt")) {
             Person.Builder builder1 = new Person.Builder();
             Person.Builder builder2 = new Person.Builder();
             Person.Builder builder3 = new Person.Builder();

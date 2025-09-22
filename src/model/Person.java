@@ -26,7 +26,7 @@ public class Person {
     }
 
     public static class Builder {
-        private String name;
+        private String name = "NoName";
         private int age = 0;
         private double weight = 0.0;
 
@@ -55,7 +55,7 @@ public class Person {
         }
 
         public Person build() {
-            if (name == null) {
+            if (name == null || name.trim().isEmpty()) {
                 throw new IllegalStateException("Имя должно быть указано");
             }
             return new Person(this);

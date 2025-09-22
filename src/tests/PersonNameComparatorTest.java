@@ -132,21 +132,44 @@ public class PersonNameComparatorTest {
         }
     }
 
-    // Тест 7: Пустые и специальные имена
+    // Тест 7: Пустые и специальные имена (с учётом, что билдер валидирует name)
     private static void testEmptyAndSpecialNames() {
         try {
             PersonNameComparator comparator = new PersonNameComparator();
-            Person person1 = new Person.Builder().name(" ").age(25).weight(55.0).build();
-            Person person2 = new Person.Builder().name("").age(30).weight(60.0).build();
-            Person person3 = new Person.Builder().name("Anna").age(35).weight(58.0).build();
 
-            assert comparator.compare(person1, person2) > 0 : "Пробел должен быть больше пустой строки";
+            // 1. Проверяем, что пустая строка — исключение
+            assertThrows(IllegalArgumentException.class, () ->
+                            new Person.Builder().name("").age(30).weight(60.0).build(),
+                    "Ожидалось исключение для пустой строки"
+            );
 
-            assert comparator.compare(person2, person3) < 0 : "Пустая строка должна быть меньше 'Anna'";
+            // 2. Проверяем, что строка из пробелов — исключение
+            assertThrows(IllegalArgumentException.class, () ->
+                            new Person.Builder().name("   ").age(25).weight(55.0).build(),
+                    "Ожидалось исключение для строки из пробелов"
+            );
+
+            // 3. Проверяем нормальные имена
+            Person personAnna = new Person.Builder().name("Anna").age(35).weight(58.0).build();
+            Person personBob = new Person.Builder().name("Bob").age(40).weight(80.0).build();
+
+            assert comparator.compare(personAnna, personBob) < 0 : "Anna должна быть меньше Bob";
 
             System.out.println(GREEN + "✅ Тест пустых и специальных имен пройден" + RESET);
         } catch (Exception e) {
             System.out.println(RED + "❌ Тест пустых и специальных имен провален: " + e.getMessage() + RESET);
+        }
+    }
+
+    private static void assertThrows(Class<? extends Throwable> expected, Runnable action, String message) {
+        try {
+            action.run();
+            throw new AssertionError("❌ " + message + " — исключение не было выброшено");
+        } catch (Throwable e) {
+            if (!expected.isInstance(e)) {
+                throw new AssertionError("❌ " + message + " — ожидалось " + expected.getSimpleName()
+                        + ", но получено " + e.getClass().getSimpleName());
+            }
         }
     }
 }

@@ -24,7 +24,11 @@ public class PersonTest {
                     .age(25)
                     .weight(60.0)
                     .build();
-            System.out.println("❌ Ошибка: объект создан без имени");
+            if (person2.getName() == "NoName") {
+                System.out.println("✅ Успешно использована заглушка для имени");
+            } else {
+                System.out.println("❌ Ошибка: объект создан без валидного имени");
+            }
         } catch (IllegalStateException e) {
             System.out.println("✅ Исключение при создании без имени: " + e.getMessage());
         }

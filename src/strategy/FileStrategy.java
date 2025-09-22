@@ -37,6 +37,14 @@ public class FileStrategy implements PersonStrategy, AutoCloseable {
         }
     }
 
+    public FileStrategy(String filePath) {
+        try {
+            this.reader = Files.newBufferedReader(Path.of(filePath), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new UncheckedIOException("Не удалось открыть файл для чтения:", e);
+        }
+    }
+
     @Override
     public void getPerson(Person.Builder b) {
         if (finished) {

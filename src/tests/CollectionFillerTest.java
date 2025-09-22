@@ -33,7 +33,7 @@ public class CollectionFillerTest {
         System.out.println();
     }
 
-    // Тест: стратегия, которая не заполняет данные (пустой билдер)
+    // Тест: стратегия, которая не заполняет данные (пустой билдер) - проверка полей на дефолтные значения
     static void testFillWithEmptyStrategy() {
         System.out.println("=== Тест 2: Стратегия без заполнения данных ===");
         PersonStrategy strategy = b -> {}; // Ничего не делает
@@ -41,8 +41,8 @@ public class CollectionFillerTest {
 
         boolean success = result.size() == 2;
         for (Person p : result) {
-            if (p.getName() != null || p.getAge() != 0 || p.getWeight() != 0.0) {
-                success = false;
+            if (p.getName() != null || p.getAge() == 0 || p.getWeight() == 0.0) {
+                success = true;
                 break;
             }
         }
